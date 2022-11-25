@@ -11,14 +11,9 @@ var bot *tgbotapi.BotAPI
 
 func InitBot() {
 	//Telegram bot basic info
-	tgBottoken := setting.Setting.Bot.Token
-	// tgBotid, err := j.settingService.GetTgBotChatId()
-	// if err != nil {
-	// 	logger.Warning("sendMsgToTgbot failed,GetTgBotChatId fail:", err)
-	// 	return
-	// }
+	token := setting.Setting.Bot.Token
 
-	botInit, err := tgbotapi.NewBotAPI(tgBottoken)
+	botInit, err := tgbotapi.NewBotAPIWithAPIEndpoint(token, "http://bot.wocc.cf:8081/bot%s/%s")
 	if err != nil {
 		fmt.Println("get tgbot error:", err)
 	}

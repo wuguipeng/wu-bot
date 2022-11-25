@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"wu-bot/bot"
+	"wu-bot/db"
 	"wu-bot/setting"
 )
 
 func main() {
 	setting.InitSetting()
-	tgBot := setting.Setting.Bot
-	fmt.Printf("setting.Setting.TgBot: %v\n", tgBot)
+	db.InitDB()
+	bot.InitBot()
+	bot.Message()
 }

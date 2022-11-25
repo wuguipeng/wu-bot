@@ -1,2 +1,9 @@
 bot:
     token: '5471229987:AAFhn7cwh-KX2brKtF868z4TdLfmrcISmGY'
+
+mysql:
+  username: wu-bot
+  password: 4fMwtw6zE78ewyY5
+  host: wocc.cf
+  port: 3306
+  database: wu-bot

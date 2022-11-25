@@ -8,11 +8,20 @@ import (
 )
 
 type Config struct {
-	Bot *Bot `yaml:"bot"`
+	Bot   *Bot   `yaml:"bot"`
+	Mysql *Mysql `yaml:"mysql"`
 }
 
 type Bot struct {
 	Token string `yaml:"token"`
+}
+
+type Mysql struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Database string `yaml:"database"`
 }
 
 var Setting = Config{}
