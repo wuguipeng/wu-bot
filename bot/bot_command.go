@@ -17,12 +17,16 @@ func command(update tgbotapi.Update) {
 	case "status":
 		msg.Text = "is Ok"
 	case "Video":
+		msg.Text = "视频查询结果"
 		db.DB.Find(&stores, "file_type = ? and user_id = ?", model.Video, update.Message.From.ID)
 	case "Audio":
+		msg.Text = "音乐查询结果"
 		db.DB.Find(&stores, "file_type = ? and user_id = ?", model.Audio, update.Message.From.ID)
 	case "Document":
+		msg.Text = "文档查询结果"
 		db.DB.Find(&stores, "file_type = ? and user_id = ?", model.Document, update.Message.From.ID)
 	case "Photo":
+		msg.Text = "图片查询结果"
 		db.DB.Find(&stores, "file_type = ? and user_id = ?", model.Photo, update.Message.From.ID)
 	case "menu":
 		// 按键
@@ -33,7 +37,6 @@ func command(update tgbotapi.Update) {
 		msg.Text = "I don't know that command"
 	}
 	msg.ReplyMarkup = inline(stores)
-	msg.Text = "查询结果"
 	bot.Send(msg)
 }
 

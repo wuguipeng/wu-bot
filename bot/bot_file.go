@@ -3,6 +3,7 @@ package bot
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"os"
+	"strings"
 	"wu-bot/logger"
 )
 
@@ -14,8 +15,12 @@ func download(fileId string) (tgbotapi.File, error) {
 	return file, err
 }
 
-func rename(oldPath, newPath string) {
-	err := os.Rename(oldPath, newPath)
+// 重命名
+func rename(FilePath, FileName string) {
+	split := strings.Split(FilePath, "/")
+	split[len(split)-1] = FileName
+	join := strings.Join(split, "/")
+	err := os.Rename(FilePath, join)
 	if err != nil {
 		logger.Errorf("文件重命名失败！", err)
 	}
