@@ -2,17 +2,18 @@ package bot
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"gopkg.in/yaml.v3"
+	"strconv"
 	"time"
 	"wu-bot/db"
 	"wu-bot/model"
 )
 
 func saveVideo(update tgbotapi.Update) {
+	notify := downloadBeforeNotify(update)
 	video := update.Message.Video
 	fileInfo, err := download(video.FileID)
 	if err != nil {
-		saveFailMsg(update)
+		saveFailMsg(update, notify)
 		return
 	}
 	rename(fileInfo.FilePath, video.FileName)
@@ -31,14 +32,15 @@ func saveVideo(update tgbotapi.Update) {
 		LocalPath:    fileInfo.FilePath,
 	}
 	db.DB.Create(&stores)
-	saveSuccessMsg(update, stores)
+	downloadAfterNotify(update, stores, notify)
 }
 
 func saveAudio(update tgbotapi.Update) {
+	notify := downloadBeforeNotify(update)
 	audio := update.Message.Audio
 	fileInfo, err := download(audio.FileID)
 	if err != nil {
-		saveFailMsg(update)
+		saveFailMsg(update, notify)
 		return
 	}
 	rename(fileInfo.FilePath, audio.FileName)
@@ -57,14 +59,15 @@ func saveAudio(update tgbotapi.Update) {
 		Performer:    audio.Performer,
 	}
 	db.DB.Create(&stores)
-	saveSuccessMsg(update, stores)
+	downloadAfterNotify(update, stores, notify)
 }
 
 func saveDocument(update tgbotapi.Update) {
+	notify := downloadBeforeNotify(update)
 	document := update.Message.Document
 	fileInfo, err := download(document.FileID)
 	if err != nil {
-		saveFailMsg(update)
+		saveFailMsg(update, notify)
 		return
 	}
 	rename(fileInfo.FilePath, document.FileName)
@@ -80,18 +83,19 @@ func saveDocument(update tgbotapi.Update) {
 		LocalPath:    fileInfo.FilePath,
 	}
 	db.DB.Create(&stores)
-	saveSuccessMsg(update, stores)
+	downloadAfterNotify(update, stores, notify)
 }
 
 func savePhoto(update tgbotapi.Update) {
+	notify := downloadBeforeNotify(update)
 	photo := update.Message.Photo
 	photoSize := photo[len(photo)-1]
 	fileInfo, err := download(photoSize.FileID)
 	if err != nil {
-		saveFailMsg(update)
+		saveFailMsg(update, notify)
 		return
 	}
-	fileName := time.Now().Format("2006-01-02 15:04:05") + ".png"
+	fileName := time.Now().Format("2006-01-02 15:04:05") + strconv.Itoa(update.Message.MessageID) + ".png"
 	rename(fileInfo.FilePath, fileName)
 	stores := model.Stores{
 		UserId:       update.Message.From.ID,
@@ -106,17 +110,23 @@ func savePhoto(update tgbotapi.Update) {
 		LocalPath:    fileInfo.FilePath,
 	}
 	db.DB.Create(&stores)
-	saveSuccessMsg(update, stores)
+	downloadAfterNotify(update, stores, notify)
 }
 
-func saveSuccessMsg(update tgbotapi.Update, store model.Stores) {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "保存成功, 文件信息\r\n")
-	out, _ := yaml.Marshal(store)
-	msg.Text += string(out)
+func downloadBeforeNotify(update tgbotapi.Update) tgbotapi.Message {
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Downloading file ...")
+	msg.ReplyToMessageID = update.Message.MessageID
+	send, _ := bot.Send(msg)
+	return send
+}
+
+func downloadAfterNotify(update tgbotapi.Update, store model.Stores, notify tgbotapi.Message) {
+	msg := tgbotapi.NewEditMessageText(update.Message.Chat.ID, notify.MessageID, "Download completed \r\n")
+	msg.Text += "FileName: " + store.FileName
 	bot.Send(msg)
 }
 
-func saveFailMsg(update tgbotapi.Update) {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "保存失败")
+func saveFailMsg(update tgbotapi.Update, notify tgbotapi.Message) {
+	msg := tgbotapi.NewEditMessageText(update.Message.Chat.ID, notify.MessageID, "Download Error ...")
 	bot.Send(msg)
 }

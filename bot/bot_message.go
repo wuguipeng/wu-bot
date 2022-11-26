@@ -1,13 +1,9 @@
 package bot
 
 import (
-	"os"
-	"strconv"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strings"
 	"wu-bot/db"
-	"wu-bot/model"
-
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 const basePath = "/home/wuguipeng/app/telegram-bot-api/"
@@ -20,9 +16,9 @@ func Message() {
 	for update := range updates {
 		if update.CallbackData() != "" {
 			if strings.Contains(update.CallbackQuery.Data, "/delete") {
-				deleteCallback(update)
+				DeleteCallback(update)
 			} else {
-				callback(update)
+				QueryCallback(update)
 			}
 		}
 		if update.Message == nil {
@@ -54,75 +50,4 @@ func Message() {
 			go saveAudio(update)
 		}
 	}
-}
-
-func deleteCallback(update tgbotapi.Update) {
-	replace := strings.Replace(update.CallbackQuery.Data, "/delete ", "", 1)
-	var store model.Stores
-	db.DB.Find(&store, "id = ? and user_id = ?", replace, update.CallbackQuery.From.ID)
-	if (model.Stores{}) == store {
-		return
-	}
-
-	_, err := os.Stat(store.LocalPath)
-	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
-	if err != nil {
-		db.DB.Delete(&store)
-		msg.Text = "文件不存在，删除记录"
-	} else {
-		err = os.Remove(store.LocalPath)
-		msg.Text = "删除失败"
-		if err == nil {
-			db.DB.Delete(&store)
-			msg.Text = "删除成功"
-		}
-	}
-	deleteMsg := tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
-	bot.Send(deleteMsg)
-	bot.Send(msg)
-}
-
-func callback(update tgbotapi.Update) {
-	var store model.Stores
-	data := update.CallbackQuery.Data
-	db.DB.Find(&store, "id = ? and user_id = ?", data, update.CallbackQuery.From.ID)
-
-	id := tgbotapi.FileID(store.FileId)
-	id.SendData()
-	var msg tgbotapi.Chattable
-
-	if store.FileType == model.Video {
-		msg1 := tgbotapi.NewVideo(update.CallbackQuery.Message.Chat.ID, id)
-		msg1.ReplyMarkup = deleteStore(store)
-		msg = msg1
-	}
-	if store.FileType == model.Document {
-		msg2 := tgbotapi.NewDocument(update.CallbackQuery.Message.Chat.ID, id)
-		msg2.ReplyMarkup = deleteStore(store)
-		msg = msg2
-	}
-	if store.FileType == model.Audio {
-		msg3 := tgbotapi.NewAudio(update.CallbackQuery.Message.Chat.ID, id)
-		msg3.ReplyMarkup = deleteStore(store)
-		msg = msg3
-	}
-	if store.FileType == model.Photo {
-		msg4 := tgbotapi.NewPhoto(update.CallbackQuery.Message.Chat.ID, id)
-		msg4.ReplyMarkup = deleteStore(store)
-		msg = msg4
-	}
-	if msg != nil {
-		bot.Send(msg)
-	}
-}
-
-func deleteStore(store model.Stores) tgbotapi.InlineKeyboardMarkup {
-	callbackDelete := "/delete " + strconv.Itoa(store.Id)
-	inlineKeyboardButton := [][]tgbotapi.InlineKeyboardButton{
-		{tgbotapi.InlineKeyboardButton{Text: "删除文件", CallbackData: &callbackDelete}},
-	}
-	reply := tgbotapi.InlineKeyboardMarkup{
-		InlineKeyboard: inlineKeyboardButton,
-	}
-	return reply
 }

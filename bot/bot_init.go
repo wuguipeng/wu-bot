@@ -13,7 +13,7 @@ func InitBot() {
 	//Telegram bot basic info
 	token := setting.Setting.Bot.Token
 
-	botInit, err := tgbotapi.NewBotAPIWithAPIEndpoint(token, "http://bot.wocc.cf:8081/bot%s/%s")
+	botInit, err := tgbotapi.NewBotAPIWithAPIEndpoint(token, "http://www.xyxdbp.xyz:8081/bot%s/%s")
 	if err != nil {
 		fmt.Println("get tgbot error:", err)
 	}

@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 	"strings"
@@ -31,12 +32,18 @@ func command(update tgbotapi.Update) {
 	case "menu":
 		// 按键
 		msg.ReplyMarkup = keyboard()
+		msg.Text = "更新按钮"
+	case "rename":
+		renameCommand(update)
 	case "withArgument":
 		msg.Text = "You supplied the following argument: " + update.Message.CommandArguments()
 	default:
 		msg.Text = "I don't know that command"
 	}
-	msg.ReplyMarkup = inline(stores)
+	if len(stores) > 0 {
+		msg.Text = "查询结果，共" + strconv.Itoa(len(stores)) + "条数据"
+		msg.ReplyMarkup = inline(stores)
+	}
 	bot.Send(msg)
 }
 
@@ -76,4 +83,26 @@ func keyboard() tgbotapi.ReplyKeyboardMarkup {
 		Selective:             true,
 	}
 	return keyboard
+}
+
+func renameCommand(update tgbotapi.Update) {
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+	replace := strings.Split(update.Message.Text, " ")
+	if len(replace) != 3 {
+		msg.Text = "重命名格式错误! 格式为 /rename id newName"
+		bot.Send(msg)
+		return
+	}
+	fmt.Println(replace)
+	var store model.Stores
+	db.DB.Find(&store, "id = ? and user_id = ?", replace[1], update.CallbackQuery.From.ID)
+	if (model.Stores{}) == store {
+		return
+	}
+	newFilePath := rename(store.LocalPath, replace[2])
+	store.LocalPath = newFilePath
+	store.FileName = replace[2]
+	db.DB.Save(&store)
+	msg.Text = "更新成功，新文件名为： " + replace[2]
+	bot.Send(msg)
 }
