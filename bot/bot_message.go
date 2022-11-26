@@ -1,12 +1,13 @@
 package bot
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"os"
 	"strconv"
 	"strings"
 	"wu-bot/db"
 	"wu-bot/model"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 const basePath = "/home/wuguipeng/app/telegram-bot-api/"
@@ -59,13 +60,25 @@ func deleteCallback(update tgbotapi.Update) {
 	replace := strings.Replace(update.CallbackQuery.Data, "/delete ", "", 1)
 	var store model.Stores
 	db.DB.Find(&store, "id = ? and user_id = ?", replace, update.CallbackQuery.From.ID)
-	err := os.Remove(store.LocalPath)
-
-	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "删除失败")
-	if err == nil {
-		db.DB.Delete(&store)
-		msg.Text = "删除成功"
+	if (model.Stores{}) == store {
+		return
 	}
+
+	_, err := os.Stat(store.LocalPath)
+	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
+	if err != nil {
+		db.DB.Delete(&store)
+		msg.Text = "文件不存在，删除记录"
+	} else {
+		err = os.Remove(store.LocalPath)
+		msg.Text = "删除失败"
+		if err == nil {
+			db.DB.Delete(&store)
+			msg.Text = "删除成功"
+		}
+	}
+	deleteMsg := tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
+	bot.Send(deleteMsg)
 	bot.Send(msg)
 }
 
