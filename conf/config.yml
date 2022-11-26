@@ -3,7 +3,7 @@ bot:
 
 mysql:
   username: wu-bot
-  password: 4fMwtw6zE78ewyY5
-  host: wocc.cf
+  password: 123456
+  host: 127.0.0.1
   port: 3306
   database: wu-bot
