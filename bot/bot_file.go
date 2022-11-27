@@ -18,6 +18,7 @@ func download(fileId string) (tgbotapi.File, error) {
 
 // 重命名
 func rename(FilePath, FileName string) string {
+	FilePath = strings.Replace(FilePath, "/root/", "/home/wuguipeng/", 1)
 	split := strings.Split(FilePath, "/")
 	split[len(split)-1] = FileName
 	join := strings.Join(split, "/")

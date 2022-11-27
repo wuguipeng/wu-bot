@@ -1,12 +1,13 @@
 package bot
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"os"
 	"strconv"
 	"strings"
 	"wu-bot/db"
 	"wu-bot/model"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func QueryCallback(update tgbotapi.Update) {
@@ -41,6 +42,8 @@ func QueryCallback(update tgbotapi.Update) {
 	if msg != nil {
 		bot.Send(msg)
 	}
+	callback := tgbotapi.NewCallback(update.CallbackQuery.ID, "查询完成!")
+	bot.Send(callback)
 }
 
 func DeleteCallback(update tgbotapi.Update) {

@@ -1,11 +1,12 @@
 package bot
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 	"time"
 	"wu-bot/db"
 	"wu-bot/model"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func saveVideo(update tgbotapi.Update) {
@@ -16,7 +17,7 @@ func saveVideo(update tgbotapi.Update) {
 		saveFailMsg(update, notify)
 		return
 	}
-	rename(fileInfo.FilePath, video.FileName)
+	newFilePath := rename(fileInfo.FilePath, video.FileName)
 	stores := model.Stores{
 		UserId:       update.Message.From.ID,
 		Duration:     video.Duration,
@@ -29,7 +30,7 @@ func saveVideo(update tgbotapi.Update) {
 		FileSize:     video.FileSize,
 		CreateTime:   time.Now().Format("2006-01-02 15:04:05"),
 		FileType:     model.Video,
-		LocalPath:    fileInfo.FilePath,
+		LocalPath:    newFilePath,
 	}
 	db.DB.Create(&stores)
 	downloadAfterNotify(update, stores, notify)
@@ -43,7 +44,7 @@ func saveAudio(update tgbotapi.Update) {
 		saveFailMsg(update, notify)
 		return
 	}
-	rename(fileInfo.FilePath, audio.FileName)
+	newFilePath := rename(fileInfo.FilePath, audio.FileName)
 	stores := model.Stores{
 		UserId:       update.Message.From.ID,
 		Duration:     audio.Duration,
@@ -55,7 +56,7 @@ func saveAudio(update tgbotapi.Update) {
 		FileSize:     audio.FileSize,
 		CreateTime:   time.Now().Format("2006-01-02 15:04:05"),
 		FileType:     model.Audio,
-		LocalPath:    fileInfo.FilePath,
+		LocalPath:    newFilePath,
 		Performer:    audio.Performer,
 	}
 	db.DB.Create(&stores)
@@ -70,7 +71,7 @@ func saveDocument(update tgbotapi.Update) {
 		saveFailMsg(update, notify)
 		return
 	}
-	rename(fileInfo.FilePath, document.FileName)
+	newFilePath := rename(fileInfo.FilePath, document.FileName)
 	stores := model.Stores{
 		UserId:       update.Message.From.ID,
 		FileName:     document.FileName,
@@ -80,7 +81,7 @@ func saveDocument(update tgbotapi.Update) {
 		FileSize:     document.FileSize,
 		CreateTime:   time.Now().Format("2006-01-02 15:04:05"),
 		FileType:     model.Document,
-		LocalPath:    fileInfo.FilePath,
+		LocalPath:    newFilePath,
 	}
 	db.DB.Create(&stores)
 	downloadAfterNotify(update, stores, notify)
@@ -96,7 +97,7 @@ func savePhoto(update tgbotapi.Update) {
 		return
 	}
 	fileName := time.Now().Format("2006-01-02 15:04:05") + strconv.Itoa(update.Message.MessageID) + ".png"
-	rename(fileInfo.FilePath, fileName)
+	newFilePath := rename(fileInfo.FilePath, fileName)
 	stores := model.Stores{
 		UserId:       update.Message.From.ID,
 		Width:        photoSize.Width,
@@ -107,7 +108,7 @@ func savePhoto(update tgbotapi.Update) {
 		FileName:     fileName,
 		CreateTime:   time.Now().Format("2006-01-02 15:04:05"),
 		FileType:     model.Photo,
-		LocalPath:    fileInfo.FilePath,
+		LocalPath:    newFilePath,
 	}
 	db.DB.Create(&stores)
 	downloadAfterNotify(update, stores, notify)
