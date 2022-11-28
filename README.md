@@ -13,7 +13,7 @@
 * [telegram-bot-api](https://github.com/tdlib/telegram-bot-api.git)需要自己搭建环境。搭建完成后替换telegram官方的api，配置文件中的 bot.api。
 
 # telegram-bot-api 安装
-1. 访问[build](https://tdlib.github.io/telegram-bot-api/build.html)网站，根据服务器系统选择响应的安装方法，没什么难度
+1. 访问[build](https://tdlib.github.io/telegram-bot-api/build.html)网站，根据服务器系统选择相应的安装方法，没什么难度。
 2. 启动
 ``` shell
     # 在 telegram-bot-api 可执行文件下执行下面命令
