@@ -27,7 +27,7 @@
 config.yml
 ```yaml
 bot:
-    token: 电报机器人API
+    token: 电报机器人token
     api: 这里使用自己搭建的 telegram-bot-api
 
 mysql:
