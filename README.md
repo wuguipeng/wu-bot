@@ -41,10 +41,13 @@ mysql:
 # 截图
 
 获取菜单
+
 ![img.png](img/img.png)
 
 保存视频
+
 ![img.png](img/img1.png)
 
 查询视频
+
 ![img.png](img/img2.png)
