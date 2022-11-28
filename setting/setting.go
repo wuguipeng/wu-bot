@@ -2,7 +2,7 @@ package setting
 
 import (
 	"io/ioutil"
-	"log"
+	"wu-bot/logger"
 
 	"gopkg.in/yaml.v3"
 )
@@ -13,7 +13,9 @@ type Config struct {
 }
 
 type Bot struct {
-	Token string `yaml:"token"`
+	Token      string `yaml:"token"`
+	IsLocalApi bool   `yaml:"isLocalApi"`
+	Api        string `yaml:"api"`
 }
 
 type Mysql struct {
@@ -27,12 +29,13 @@ type Mysql struct {
 var Setting = Config{}
 
 func InitSetting() {
-	file, err := ioutil.ReadFile("./conf/config.yml")
+	logger.Info("初始化配置文件")
+	file, err := ioutil.ReadFile("./config.yml")
 	if err != nil {
-		log.Fatal("fail to read file:", err)
+		logger.Error("配置文件加载失败:", err)
 	}
 	err = yaml.Unmarshal(file, &Setting)
 	if err != nil {
-		log.Fatal("fail to yaml unmarshal:", err)
+		logger.Error("配置文件反序列化失败:", err)
 	}
 }

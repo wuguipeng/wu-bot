@@ -48,7 +48,6 @@ func command(update tgbotapi.Update) {
 }
 
 func inline(stores []model.Stores) tgbotapi.InlineKeyboardMarkup {
-
 	// 构建动态数组
 	inlineKeyboardButton := make([][]tgbotapi.InlineKeyboardButton, len(stores))
 	for i := 0; i < len(stores); i++ {

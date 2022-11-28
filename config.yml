@@ -1,0 +1,10 @@
+bot:
+  token: 电报机器人API
+  api: 这里使用自己搭建的 telegram-bot-api
+
+mysql:
+  username: root
+  password: 123456
+  host: 127.0.0.1
+  port: 3306
+  database: wu-bot

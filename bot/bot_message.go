@@ -6,8 +6,6 @@ import (
 	"wu-bot/db"
 )
 
-const basePath = "/home/wuguipeng/app/telegram-bot-api/"
-
 func Message() {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
